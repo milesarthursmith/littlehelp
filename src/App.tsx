@@ -6,6 +6,8 @@ import Dashboard from '@/pages/Dashboard'
 import StorePassword from '@/pages/StorePassword'
 import RetrievePassword from '@/pages/RetrievePassword'
 import Instructions from '@/pages/Instructions'
+import ManageSchedule from '@/pages/ManageSchedule'
+import Pricing from '@/pages/Pricing'
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { user, loading } = useAuth()
@@ -92,6 +94,22 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Instructions />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/schedule/:id"
+        element={
+          <ProtectedRoute>
+            <ManageSchedule />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/pricing"
+        element={
+          <ProtectedRoute>
+            <Pricing />
           </ProtectedRoute>
         }
       />

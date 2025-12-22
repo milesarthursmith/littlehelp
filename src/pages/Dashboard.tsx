@@ -5,7 +5,7 @@ import { supabase, type PasswordVault } from '@/lib/supabase'
 import { decryptPassword } from '@/lib/encryption'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { Lock, Plus, LogOut, Key, Trash2, BookOpen, Shield, Eye, EyeOff, Copy, Check } from 'lucide-react'
+import { Lock, Plus, LogOut, Key, Trash2, BookOpen, Shield, Eye, EyeOff, Copy, Check, Calendar, Download, Sparkles } from 'lucide-react'
 
 export default function Dashboard() {
   const { user, signOut } = useAuth()
@@ -91,6 +91,27 @@ export default function Dashboard() {
     setTimeout(() => setCopiedId(null), 2000)
   }
 
+  const handleExportVault = (vault: PasswordVault) => {
+    const exportData = {
+      name: vault.name,
+      encrypted_password: vault.encrypted_password,
+      iv: vault.iv,
+      salt: vault.salt,
+      exported_at: new Date().toISOString(),
+      note: 'This file contains an encrypted password. You need your master password to decrypt it.',
+    }
+    
+    const blob = new Blob([JSON.stringify(exportData, null, 2)], { type: 'application/json' })
+    const url = URL.createObjectURL(blob)
+    const a = document.createElement('a')
+    a.href = url
+    a.download = `${vault.name.replace(/[^a-z0-9]/gi, '_').toLowerCase()}_backup.json`
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    URL.revokeObjectURL(url)
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
       {/* Header */}
@@ -106,6 +127,16 @@ export default function Dashboard() {
             </div>
           </div>
           <div className="flex items-center gap-3">
+            <Link to="/pricing">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-emerald-400 hover:bg-emerald-500/10 hover:text-emerald-300"
+              >
+                <Sparkles className="mr-2 h-4 w-4" />
+                <span className="hidden sm:inline">Upgrade</span>
+              </Button>
+            </Link>
             <Link to="/instructions">
               <Button 
                 variant="ghost" 
@@ -242,15 +273,33 @@ export default function Dashboard() {
                       </div>
                     </div>
                   ) : null}
+                  {/* Action Buttons Row 1 */}
                   <div className="flex gap-2">
                     <Link to={`/retrieve/${vault.id}`} className="flex-1">
                       <Button 
                         className="w-full bg-gradient-to-r from-emerald-500/10 to-teal-500/10 hover:from-emerald-500/20 hover:to-teal-500/20 border border-emerald-500/20 text-emerald-400 hover:text-emerald-300 transition-all"
                       >
                         <Key className="mr-2 h-4 w-4" />
-                        Retrieve Password
+                        Retrieve
                       </Button>
                     </Link>
+                    <Link to={`/schedule/${vault.id}`}>
+                      <Button
+                        variant="outline"
+                        className="border-slate-700 bg-slate-800/30 text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                        title="Manage scheduled unlocks"
+                      >
+                        <Calendar className="h-4 w-4" />
+                      </Button>
+                    </Link>
+                    <Button
+                      variant="outline"
+                      onClick={() => handleExportVault(vault)}
+                      className="border-slate-700 bg-slate-800/30 text-slate-300 hover:bg-slate-800/50 hover:text-white"
+                      title="Export encrypted backup"
+                    >
+                      <Download className="h-4 w-4" />
+                    </Button>
                     <Button
                       type="button"
                       variant="outline"

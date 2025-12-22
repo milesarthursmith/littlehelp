@@ -8,18 +8,25 @@ Password Locker helps you:
 1. **Generate a random 4-digit PIN** for iOS Screen Time or other blockers
 2. **Enter it into your device** through a confusing step-by-step process that prevents memorization
 3. **Store it securely** with AES-256 encryption
-4. **Retrieve it later** only after completing a typing challenge
+4. **Retrieve it later** only after completing a ~15-20 minute typing challenge
 
 This creates a barrier that stops impulsive unblocking while keeping the password accessible when you truly need it.
 
 ## Features
 
+### Core Features
 - **Blind PIN Entry**: Enter digits one at a time with distractions, fake digits, and deletions mixed in
 - **Dual Entry**: Complete the confusing process twice (entry + verification)
 - **AES-256-GCM Encryption**: Client-side encryption with your master password
-- **Typing Challenge**: Must type a long passage accurately before retrieval
-- **Supabase Backend**: Secure authentication and database storage
+- **Extended Typing Challenge**: Type 3 long passages (~15-20 min total) before retrieval
 - **Modern UI**: Clean, dark-themed interface with smooth animations
+
+### Advanced Features
+- **Scheduled Unlocks**: Set time windows (e.g., Sunday mornings) when the challenge is skipped
+- **Emergency Access**: Request immediate access with a 24-hour delay
+- **Offline Export**: Download encrypted backups for offline retrieval
+- **Pricing Page**: Ready for Stripe integration with premium features
+- **Charity Donation Skip**: UI ready for Every.org integration
 
 ## Tech Stack
 
@@ -40,8 +47,8 @@ This creates a barrier that stops impulsive unblocking while keeping the passwor
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/yourusername/passlocker.git
-   cd passlocker
+   git clone https://github.com/milesarthursmith/littlehelp.git
+   cd littlehelp
    ```
 
 2. **Install dependencies**
@@ -60,6 +67,7 @@ This creates a barrier that stops impulsive unblocking while keeping the passwor
    ```
    VITE_SUPABASE_URL=your_supabase_project_url
    VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
+   VITE_STRIPE_CHECKOUT_URL=your_stripe_checkout_url (optional)
    ```
 
 5. **Run development server**
@@ -86,9 +94,13 @@ The confusing sequence (fake digits, deletions, distractions, waits) prevents yo
 ### Retrieving a Password
 
 1. **Select the password** from your vault
-2. **Complete the typing challenge** - type a ~500 character passage accurately
+2. **Complete the typing challenge** - type 3 long passages (~500 chars each)
 3. **Enter your master password**
 4. **View your PIN** - copy it or use it to unlock Screen Time
+
+**Alternative Retrieval Options:**
+- **Scheduled Unlock**: If you've set a schedule (e.g., Sundays 9-10am), skip the challenge
+- **Emergency Access**: Request immediate access with a 24-hour waiting period
 
 ## Project Structure
 
@@ -98,34 +110,30 @@ src/
 ├── hooks/
 │   └── useAuth.tsx      # Authentication context and hook
 ├── lib/
-│   ├── supabase.ts      # Supabase client setup
+│   ├── supabase.ts      # Supabase client setup + types
 │   ├── encryption.ts    # AES-256-GCM encryption utilities
 │   └── utils.ts         # Tailwind merge utility
 ├── pages/
-│   ├── Login.tsx        # Login page
-│   ├── Signup.tsx       # Signup page
-│   ├── Dashboard.tsx    # Vault list and management
+│   ├── Login.tsx            # Login page
+│   ├── Signup.tsx           # Signup page
+│   ├── Dashboard.tsx        # Vault list and management
 │   ├── StorePassword.tsx    # PIN generator and storage
-│   ├── RetrievePassword.tsx # Typing challenge + reveal
+│   ├── RetrievePassword.tsx # Typing challenge + emergency access
+│   ├── ManageSchedule.tsx   # Scheduled unlock configuration
+│   ├── Pricing.tsx          # Premium plans + charity donation
 │   └── Instructions.tsx     # Setup guide
 └── App.tsx              # Router and auth provider
 ```
 
 ## Database Schema
 
-```sql
-create table password_vaults (
-  id uuid primary key default gen_random_uuid(),
-  user_id uuid references auth.users not null,
-  name text not null,
-  encrypted_password text not null,
-  iv text not null,
-  salt text not null,
-  created_at timestamptz default now()
-);
+See `supabase-schema.sql` for the complete schema including:
+- `password_vaults` - Encrypted password storage
+- `scheduled_unlocks` - Time windows for challenge-free access
+- `emergency_access_requests` - Delayed emergency access tracking
+- `user_subscriptions` - Stripe subscription data (for premium features)
 
--- Row Level Security ensures users can only access their own data
-```
+All tables use Row Level Security (RLS) to ensure users can only access their own data.
 
 ## Security
 
@@ -151,14 +159,15 @@ npm run build
 npm run preview
 ```
 
-## TODO / Future Improvements
+## TODO Before Production
 
-- [ ] Remove test override button before production
-- [ ] Add configurable typing challenge length
-- [ ] Add time-delay option before retrieval
-- [ ] Add password strength requirements
-- [ ] Add account recovery options
-- [ ] Add export/import functionality
+- [ ] Remove test override button (Dashboard.tsx)
+- [ ] Configure Stripe webhook handler for subscriptions
+- [ ] Integrate Every.org API for charity donations
+- [ ] Set up error tracking (Sentry)
+- [ ] Add rate limiting on retrieval attempts
+
+See `ROADMAP.md` for full list of planned features.
 
 ## Based On
 
