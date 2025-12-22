@@ -162,7 +162,11 @@ export default function RetrievePassword() {
 
     if (error) {
       console.error('Error creating emergency request:', error)
-      alert('Failed to create emergency access request')
+      if (error.code === '42P01') {
+        alert('Database table not found. Please run the latest supabase-schema.sql in your Supabase SQL Editor.')
+      } else {
+        alert(`Failed to create emergency access request: ${error.message}`)
+      }
     } else {
       setEmergencyRequest(data)
       setStep('emergency-pending')

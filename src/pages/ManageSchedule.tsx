@@ -83,7 +83,11 @@ export default function ManageSchedule() {
 
     if (error) {
       console.error('Error adding schedule:', error)
-      alert('Failed to add schedule')
+      if (error.code === '42P01') {
+        alert('Database table not found. Please run the latest supabase-schema.sql in your Supabase SQL Editor.')
+      } else {
+        alert(`Failed to add schedule: ${error.message}`)
+      }
     } else {
       setSchedules([...schedules, data])
     }
