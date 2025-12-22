@@ -77,12 +77,19 @@ Use descriptive commit messages:
 - `refactor: Simplify blind entry logic`
 - `style: Improve dashboard card layout`
 
-## Before Pushing
+## Before Pushing (REQUIRED)
+
+**Always test in the browser before pushing to GitHub.**
 
 1. Run `npm run build` to check for TypeScript errors
-2. Test the full flow: signup → store password → retrieve password
+2. Run `npm run dev` and test in browser:
+   - Test the full flow: signup → store password → retrieve password
+   - Test new features you've added
+   - Check for console errors
 3. Update documentation if needed
 4. Remove any debug code or console.logs
+
+⚠️ **Do NOT push without testing first!**
 
 ## Future Features (See ROADMAP.md)
 
