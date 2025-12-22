@@ -1,0 +1,94 @@
+# Password Locker - Cursor Rules
+
+## Project Overview
+
+Password Locker is a personal password vault app for storing Screen Time passcodes (and similar passwords) in a way users won't remember, with retrieval requiring a deliberate friction-filled process.
+
+**Tech Stack:**
+- Frontend: React 18 + TypeScript + Vite
+- Styling: Tailwind CSS v4 + shadcn/ui components
+- Backend: Supabase (Auth + PostgreSQL)
+- Encryption: Web Crypto API (AES-256-GCM)
+- Routing: React Router v6
+
+## Key Files
+
+- `src/pages/StorePassword.tsx` - Blind PIN entry with confusing sequence
+- `src/pages/RetrievePassword.tsx` - Typing challenge for password retrieval
+- `src/lib/encryption.ts` - AES-256-GCM encryption utilities
+- `src/lib/supabase.ts` - Supabase client and types
+- `supabase-schema.sql` - Database schema
+- `ROADMAP.md` - Planned features and improvements
+- `README.md` - Project documentation
+
+## Documentation Requirements
+
+When making changes, always:
+
+1. **Update README.md** if you:
+   - Add new features
+   - Change setup instructions
+   - Modify environment variables
+   - Change the tech stack
+
+2. **Update ROADMAP.md** if you:
+   - Complete a planned feature (move to "Done")
+   - Add new feature ideas
+   - Change priorities
+
+3. **Update supabase-schema.sql** if you:
+   - Add new database tables
+   - Modify existing table structures
+   - Add new RLS policies
+
+4. **Add inline comments** for:
+   - Complex encryption logic
+   - Non-obvious business logic
+   - Workarounds or hacks
+
+## Code Style
+
+- Use TypeScript strict mode
+- Prefer functional components with hooks
+- Use Tailwind for styling (no separate CSS files)
+- Follow shadcn/ui component patterns
+- Use `@/` path alias for imports
+
+## Security Considerations
+
+- Never log or expose decrypted passwords
+- All encryption happens client-side
+- Master passwords are never stored
+- Use PBKDF2 with 100,000 iterations for key derivation
+- Supabase RLS ensures users only access their own data
+
+## Development Notes
+
+- Test override button exists in Dashboard.tsx - REMOVE BEFORE PRODUCTION
+- The blind PIN entry sequence uses randomization - test multiple times
+- Typing challenge passage is hardcoded in RetrievePassword.tsx
+
+## Git Commit Guidelines
+
+Use descriptive commit messages:
+- `feat: Add scheduled unlocks feature`
+- `fix: Correct encryption IV handling`
+- `docs: Update README with new setup steps`
+- `refactor: Simplify blind entry logic`
+- `style: Improve dashboard card layout`
+
+## Before Pushing
+
+1. Run `npm run build` to check for TypeScript errors
+2. Test the full flow: signup → store password → retrieve password
+3. Update documentation if needed
+4. Remove any debug code or console.logs
+
+## Future Features (See ROADMAP.md)
+
+Priority order:
+1. Feature parity (scheduled unlocks, emergency access, offline export)
+2. Stripe payments (subscription paywall)
+3. Charity donation option (Every.org integration)
+4. Social media password storage expansion
+
