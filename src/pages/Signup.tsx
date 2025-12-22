@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Lock, Mail, KeyRound, CheckCircle2 } from 'lucide-react'
+import { Leaf, CheckCircle2 } from 'lucide-react'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -46,14 +46,16 @@ export default function Signup() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
-        <Card className="w-full max-w-md border-slate-800/50 bg-slate-900/30 backdrop-blur-xl shadow-xl">
+      <div className="min-h-screen flex items-center justify-center bg-[#faf8f5] p-4">
+        <Card className="w-full max-w-md border-[#e2ddd5] bg-white card-shadow animate-fade-up">
           <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25">
-              <CheckCircle2 className="h-8 w-8 text-white" />
+            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f4f3]">
+              <CheckCircle2 className="h-8 w-8 text-[#2d9d92]" />
             </div>
-            <CardTitle className="text-2xl font-bold text-white">Check your email</CardTitle>
-            <CardDescription className="text-slate-400">
+            <CardTitle className="text-2xl text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
+              Check your email
+            </CardTitle>
+            <CardDescription className="text-[#718096]">
               We've sent you a confirmation link. Please check your inbox.
             </CardDescription>
           </CardHeader>
@@ -63,89 +65,103 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
-      <div className="w-full max-w-md">
-        <div className="mb-8 text-center">
-          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25">
-            <Lock className="h-8 w-8 text-white" />
+    <div className="min-h-screen flex items-center justify-center p-4 bg-[#faf8f5] relative overflow-hidden">
+      {/* Decorative background circles */}
+      <div className="deco-circle w-[500px] h-[500px] -top-48 -left-48 animate-breathe" />
+      <div className="deco-circle w-[400px] h-[400px] -bottom-32 -right-32 animate-breathe" style={{ animationDelay: '2s' }} />
+      
+      <div className="w-full max-w-md relative z-10">
+        {/* Logo and heading */}
+        <div className="mb-10 text-center animate-fade-up">
+          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f4f3] animate-float">
+            <Leaf className="h-8 w-8 text-[#2d9d92]" strokeWidth={1.5} />
           </div>
-          <h1 className="mb-2 text-3xl font-bold text-white">Create account</h1>
-          <p className="text-slate-400">Get started with Password Locker</p>
+          <h1 className="text-3xl text-[#2d3748] mb-2" style={{ fontFamily: 'Newsreader, serif' }}>
+            Create your account
+          </h1>
+          <p className="text-[#718096]">
+            Begin your journey to mindful password management
+          </p>
         </div>
 
-        <Card className="border-slate-800/50 bg-slate-900/30 backdrop-blur-xl shadow-xl">
+        <Card className="border-[#e2ddd5] bg-white card-shadow animate-fade-up delay-1">
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-5 pt-6">
               {error && (
-                <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
+                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 animate-fade-in">
                   {error}
                 </div>
               )}
+              
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-slate-300">Email</Label>
-                <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                  <Input
-                    id="email"
-                    type="email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    placeholder="you@example.com"
-                    required
-                    className="border-slate-700 bg-slate-800/50 pl-10 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                  />
-                </div>
+                <Label htmlFor="email" className="text-[#4a5568] font-medium">
+                  Email
+                </Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  required
+                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all"
+                />
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-slate-300">Password</Label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                  <Input
-                    id="password"
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="border-slate-700 bg-slate-800/50 pl-10 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                  />
-                </div>
-                <p className="text-xs text-slate-500">Must be at least 6 characters</p>
+                <Label htmlFor="password" className="text-[#4a5568] font-medium">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all font-mono"
+                />
+                <p className="text-xs text-[#a0aec0]">At least 6 characters</p>
               </div>
+              
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-slate-300">Confirm Password</Label>
-                <div className="relative">
-                  <KeyRound className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-500" />
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    required
-                    className="border-slate-700 bg-slate-800/50 pl-10 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                  />
-                </div>
+                <Label htmlFor="confirmPassword" className="text-[#4a5568] font-medium">
+                  Confirm Password
+                </Label>
+                <Input
+                  id="confirmPassword"
+                  type="password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="••••••••"
+                  required
+                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all font-mono"
+                />
               </div>
             </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-6">
+            
+            <CardFooter className="flex flex-col gap-5 pt-2 pb-6">
               <Button 
                 type="submit" 
-                className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
+                className="w-full h-11 bg-[#2d9d92] hover:bg-[#237a72] text-white font-medium transition-all duration-200 hover:shadow-md hover:shadow-[#2d9d92]/20 rounded-lg"
                 disabled={loading}
               >
                 {loading ? (
-                  <>
-                    <div className="mr-2 h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent"></div>
+                  <span className="flex items-center gap-2">
+                    <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
                     Creating account...
-                  </>
+                  </span>
                 ) : (
-                  'Sign Up'
+                  'Create Account'
                 )}
               </Button>
-              <p className="text-sm text-slate-400">
+              
+              <p className="text-[#718096] text-center">
                 Already have an account?{' '}
-                <Link to="/login" className="font-medium text-emerald-400 hover:text-emerald-300 transition-colors">
+                <Link 
+                  to="/login" 
+                  className="text-[#2d9d92] hover:text-[#237a72] font-medium transition-colors"
+                >
                   Sign in
                 </Link>
               </p>
