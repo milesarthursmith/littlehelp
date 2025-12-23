@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Lock, Eye, EyeOff, Smartphone, Delete, RotateCcw } from 'lucide-react'
+import { ArrowLeft, Shield, Eye, EyeOff, Smartphone, Delete, RotateCcw } from 'lucide-react'
 
 type Instruction = {
   type: 'digit' | 'delete' | 'wait' | 'distraction'
@@ -15,127 +15,65 @@ type Instruction = {
   message: string
 }
 
-// Generate a random 4-digit PIN
 function generatePin(): string {
   return Array.from({ length: 4 }, () => Math.floor(Math.random() * 10)).join('')
 }
 
-// Generate confusing instruction sequence for entering a PIN
-// This creates a complex sequence: enter some digits, delete some, add more, etc.
 function generateInstructions(pin: string): Instruction[] {
   const instructions: Instruction[] = []
   const digits = pin.split('')
-  
-  // Distractions to break memory
   const distractions = [
-    { type: 'distraction' as const, message: 'Look away from your phone for a moment...' },
+    { type: 'distraction' as const, message: 'Look away from your phone...' },
     { type: 'distraction' as const, message: 'Take a deep breath...' },
-    { type: 'distraction' as const, message: 'Think about what you had for breakfast...' },
-    { type: 'wait' as const, message: 'Wait 3 seconds before continuing...' },
+    { type: 'wait' as const, message: 'Wait 3 seconds...' },
   ]
   
-  // Track what should be in the field at each step
   let fieldState: string[] = []
   let nextDigitIndex = 0
-  
-  // Phase 1: Enter 2-3 digits (can include fake ones)
   const initialDigits = Math.random() < 0.5 ? 2 : 3
   
   for (let i = 0; i < initialDigits && nextDigitIndex < 4; i++) {
-    // Sometimes add a fake digit first
     if (Math.random() < 0.4 && fieldState.length < 3) {
       const fakeDigit = String(Math.floor(Math.random() * 10))
-      instructions.push({
-        type: 'digit',
-        value: fakeDigit,
-        message: `Enter ${fakeDigit} into your iPhone`
-      })
+      instructions.push({ type: 'digit', value: fakeDigit, message: `Enter ${fakeDigit}` })
       fieldState.push(fakeDigit)
     }
-    
-    // Add real digit
-    instructions.push({
-      type: 'digit',
-      value: digits[nextDigitIndex],
-      message: `Enter ${digits[nextDigitIndex]} into your iPhone`
-    })
+    instructions.push({ type: 'digit', value: digits[nextDigitIndex], message: `Enter ${digits[nextDigitIndex]}` })
     fieldState.push(digits[nextDigitIndex])
     nextDigitIndex++
   }
   
-  // Distraction
   if (nextDigitIndex < 4 && Math.random() < 0.7) {
     instructions.push(distractions[Math.floor(Math.random() * distractions.length)])
   }
   
-  // Phase 2: Delete some digits (but not all - keep at least the first real digit)
   if (fieldState.length > 1 && nextDigitIndex < 4) {
-    // Find how many real digits we have
-    let realDigitCount = 0
-    for (let i = 0; i < fieldState.length && i < nextDigitIndex; i++) {
-      if (fieldState[i] === digits[i]) {
-        realDigitCount++
-      }
-    }
-    
-    // Delete some, but keep at least 1 real digit
-    const deleteCount = Math.min(
-      Math.floor(Math.random() * (fieldState.length - 1)) + 1,
-      fieldState.length - 1 // Always keep at least 1
-    )
-    
+    const deleteCount = Math.min(Math.floor(Math.random() * (fieldState.length - 1)) + 1, fieldState.length - 1)
     for (let i = 0; i < deleteCount; i++) {
-      instructions.push({
-        type: 'delete',
-        message: 'Press the Delete key on your iPhone'
-      })
+      instructions.push({ type: 'delete', message: 'Press Delete' })
       const removed = fieldState.pop()
-      // If we removed a real digit that was in correct position, adjust nextDigitIndex
-      if (removed && fieldState.length < nextDigitIndex) {
-        nextDigitIndex = fieldState.length
-      }
+      if (removed && fieldState.length < nextDigitIndex) nextDigitIndex = fieldState.length
     }
-    
-    // Distraction after deleting
     if (nextDigitIndex < 4 && Math.random() < 0.6) {
       instructions.push(distractions[Math.floor(Math.random() * distractions.length)])
     }
   }
   
-  // Phase 3: Add remaining digits to complete the PIN
   while (nextDigitIndex < 4) {
-    // Sometimes add and immediately delete a fake digit
     if (Math.random() < 0.3 && fieldState.length < 3) {
       const fakeDigit = String(Math.floor(Math.random() * 10))
-      instructions.push({
-        type: 'digit',
-        value: fakeDigit,
-        message: `Enter ${fakeDigit} into your iPhone`
-      })
+      instructions.push({ type: 'digit', value: fakeDigit, message: `Enter ${fakeDigit}` })
       fieldState.push(fakeDigit)
-      
-      instructions.push({
-        type: 'delete',
-        message: 'Press the Delete key on your iPhone'
-      })
+      instructions.push({ type: 'delete', message: 'Press Delete' })
       fieldState.pop()
     }
-    
-    // Add the next real digit
-    instructions.push({
-      type: 'digit',
-      value: digits[nextDigitIndex],
-      message: `Enter ${digits[nextDigitIndex]} into your iPhone`
-    })
+    instructions.push({ type: 'digit', value: digits[nextDigitIndex], message: `Enter ${digits[nextDigitIndex]}` })
     fieldState.push(digits[nextDigitIndex])
     nextDigitIndex++
-    
-    // Distraction between digits (not after last)
     if (nextDigitIndex < 4 && Math.random() < 0.4) {
       instructions.push(distractions[Math.floor(Math.random() * distractions.length)])
     }
   }
-  
   return instructions
 }
 
@@ -155,7 +93,6 @@ export default function StorePassword() {
   const [loading, setLoading] = useState(false)
   const [waitCountdown, setWaitCountdown] = useState(0)
 
-  // Handle wait countdown
   useEffect(() => {
     if (waitCountdown > 0) {
       const timer = setTimeout(() => setWaitCountdown(waitCountdown - 1), 1000)
@@ -165,13 +102,8 @@ export default function StorePassword() {
 
   const handleNameSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!name.trim()) {
-      setError('Please enter a name')
-      return
-    }
+    if (!name.trim()) { setError('Please enter a name'); return }
     setError('')
-    
-    // Generate PIN and instructions
     const pin = generatePin()
     setGeneratedPin(pin)
     setInstructions(generateInstructions(pin))
@@ -184,76 +116,39 @@ export default function StorePassword() {
     const currentInstructions = step === 'instructions' ? instructions : verifyInstructions
     const current = currentInstructions[currentInstruction]
     
-    // If it's a wait instruction, start countdown
     if (current.type === 'wait') {
       setWaitCountdown(3)
       setTimeout(() => {
-        if (currentInstruction < currentInstructions.length - 1) {
-          setCurrentInstruction(currentInstruction + 1)
-        } else if (step === 'instructions') {
-          // Move to verify step
-          setCurrentInstruction(0)
-          setStep('verify')
-        } else {
-          // Move to master password
-          setStep('master')
-        }
+        if (currentInstruction < currentInstructions.length - 1) setCurrentInstruction(currentInstruction + 1)
+        else if (step === 'instructions') { setCurrentInstruction(0); setStep('verify') }
+        else setStep('master')
       }, 3000)
       return
     }
     
-    if (currentInstruction < currentInstructions.length - 1) {
-      setCurrentInstruction(currentInstruction + 1)
-    } else if (step === 'instructions') {
-      // Move to verify step
-      setCurrentInstruction(0)
-      setStep('verify')
-    } else {
-      // Move to master password
-      setStep('master')
-    }
+    if (currentInstruction < currentInstructions.length - 1) setCurrentInstruction(currentInstruction + 1)
+    else if (step === 'instructions') { setCurrentInstruction(0); setStep('verify') }
+    else setStep('master')
   }
 
   const handleMasterSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (masterPassword.length < 6) {
-      setError('Master password must be at least 6 characters')
-      return
-    }
-    setError('')
-    setStep('confirm')
+    if (masterPassword.length < 6) { setError('Password must be at least 6 characters'); return }
+    setError(''); setStep('confirm')
   }
 
   const handleConfirmSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (masterPassword !== confirmMaster) {
-      setError('Master passwords do not match')
-      return
-    }
-
-    setLoading(true)
-    setError('')
-
+    if (masterPassword !== confirmMaster) { setError('Passwords do not match'); return }
+    setLoading(true); setError('')
     try {
       const encrypted = await encryptPassword(generatedPin, masterPassword)
-
-      const { error: dbError } = await supabase
-        .from('password_vaults')
-        .insert({
-          user_id: user?.id,
-          name,
-          encrypted_password: encrypted.ciphertext,
-          iv: encrypted.iv,
-          salt: encrypted.salt,
-        })
-
+      const { error: dbError } = await supabase.from('password_vaults').insert({
+        user_id: user?.id, name, encrypted_password: encrypted.ciphertext, iv: encrypted.iv, salt: encrypted.salt,
+      })
       if (dbError) throw dbError
-
       navigate('/dashboard')
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to store password')
-      setLoading(false)
-    }
+    } catch (err) { setError(err instanceof Error ? err.message : 'Failed to store'); setLoading(false) }
   }
 
   const handleReset = () => {
@@ -265,66 +160,45 @@ export default function StorePassword() {
   }
 
   const currentInstructions = step === 'instructions' ? instructions : verifyInstructions
-  const progress = currentInstructions.length > 0 
-    ? Math.round(((currentInstruction + 1) / currentInstructions.length) * 100) 
-    : 0
-
-  const getInstructionIcon = (type: Instruction['type']) => {
-    switch (type) {
-      case 'digit': return <Smartphone className="h-8 w-8" />
-      case 'delete': return <Delete className="h-8 w-8" />
-      default: return null
-    }
-  }
+  const progress = currentInstructions.length > 0 ? Math.round(((currentInstruction + 1) / currentInstructions.length) * 100) : 0
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950 p-4">
-      <div className="mx-auto max-w-md pt-8">
-        <Link to="/dashboard" className="mb-6 inline-flex items-center text-slate-400 hover:text-white transition-colors">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+    <div className="min-h-screen bg-[#F4F7F6] p-6">
+      <div className="mx-auto max-w-[420px] pt-8">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-[14px] text-[#7F8C8D] hover:text-[#2C3E50] mb-6">
+          <ArrowLeft className="h-4 w-4" /> Back
         </Link>
 
-        <Card className="border-slate-800/50 bg-slate-900/30 backdrop-blur-xl shadow-xl">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500 to-teal-500 shadow-lg shadow-emerald-500/25">
-              <Lock className="h-7 w-7 text-white" />
+        <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#338089]">
+              <Shield className="h-6 w-6 text-white" strokeWidth={1.5} />
             </div>
-            <CardTitle className="text-2xl font-bold text-white">
-              {step === 'name' && 'Create New Password'}
-              {step === 'instructions' && 'Enter PIN into iPhone'}
-              {step === 'verify' && 'Verify PIN (Enter Again)'}
-              {step === 'master' && 'Set Master Password'}
-              {step === 'confirm' && 'Confirm Master Password'}
+            <CardTitle className="text-[18px] font-bold text-[#2C3E50]">
+              {step === 'name' && 'New Password'}
+              {step === 'instructions' && 'Enter PIN'}
+              {step === 'verify' && 'Verify PIN'}
+              {step === 'master' && 'Master Password'}
+              {step === 'confirm' && 'Confirm Password'}
             </CardTitle>
-            <CardDescription className="text-slate-400">
-              {step === 'name' && 'Give this password a memorable name'}
-              {step === 'instructions' && 'Follow each instruction carefully on your iPhone'}
-              {step === 'verify' && 'iPhone will ask you to verify - follow along again'}
-              {step === 'master' && 'This unlocks your password during retrieval'}
-              {step === 'confirm' && 'Type your master password again'}
+            <CardDescription className="text-[14px] text-[#7F8C8D]">
+              {step === 'name' && 'Give this password a name'}
+              {step === 'instructions' && 'Follow each step on your iPhone'}
+              {step === 'verify' && 'Enter the PIN again to verify'}
+              {step === 'master' && 'This unlocks your password later'}
+              {step === 'confirm' && 'Type it again to confirm'}
             </CardDescription>
           </CardHeader>
 
           {step === 'name' && (
             <form onSubmit={handleNameSubmit}>
-              <CardContent className="space-y-4">
-                {error && (
-                  <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
-                    {error}
-                  </div>
-                )}
+              <CardContent className="space-y-4 px-6 pb-6">
+                {error && <div className="rounded-[8px] bg-red-50 border border-red-200 p-3 text-[14px] text-red-600">{error}</div>}
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-slate-300">Password Name</Label>
-                  <Input
-                    id="name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
-                    placeholder="e.g., iOS Screen Time"
-                    className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                  />
+                  <Label className="text-[14px] font-medium text-[#2C3E50]">Password Name</Label>
+                  <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g., iOS Screen Time" className="h-11 rounded-[8px] border-[#E5E8E8]" />
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25">
+                <Button type="submit" className="w-full h-10 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white font-semibold">
                   Generate PIN & Start
                 </Button>
               </CardContent>
@@ -332,138 +206,79 @@ export default function StorePassword() {
           )}
 
           {(step === 'instructions' || step === 'verify') && currentInstructions.length > 0 && (
-            <CardContent className="space-y-6">
-              {/* Progress bar */}
+            <CardContent className="space-y-5 px-6 pb-6">
               <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-slate-400">
-                    {step === 'instructions' ? 'First entry' : 'Verification'}
-                  </span>
-                  <span className="text-emerald-400">{progress}%</span>
+                <div className="flex justify-between text-[12px]">
+                  <span className="text-[#7F8C8D]">{step === 'instructions' ? 'First entry' : 'Verification'}</span>
+                  <span className="text-[#338089] font-medium">{progress}%</span>
                 </div>
-                <div className="h-2.5 overflow-hidden rounded-full bg-slate-800/50">
-                  <div
-                    className="h-full bg-gradient-to-r from-emerald-500 to-teal-500 transition-all duration-300 shadow-lg shadow-emerald-500/25"
-                    style={{ width: `${progress}%` }}
-                  />
+                <div className="h-2 rounded-full bg-[#E5E8E8] overflow-hidden">
+                  <div className="h-full bg-[#338089] transition-all" style={{ width: `${progress}%` }} />
                 </div>
               </div>
 
-              {/* Current instruction */}
-              <div className="rounded-xl bg-gradient-to-br from-slate-800/50 to-slate-900/50 border border-slate-700/50 p-8 text-center backdrop-blur-sm">
-                <div className="mb-6 flex justify-center text-emerald-400">
-                  {getInstructionIcon(currentInstructions[currentInstruction].type)}
+              <div className="rounded-[12px] bg-[#F4F7F6] border border-[#E5E8E8] p-6 text-center">
+                <div className="mb-4 flex justify-center text-[#338089]">
+                  {currentInstructions[currentInstruction].type === 'digit' && <Smartphone className="h-8 w-8" />}
+                  {currentInstructions[currentInstruction].type === 'delete' && <Delete className="h-8 w-8" />}
                 </div>
-                <p className="text-xl font-semibold text-white mb-4">
+                <p className="text-[16px] font-semibold text-[#2C3E50] mb-4">
                   {currentInstructions[currentInstruction].message}
                 </p>
                 {currentInstructions[currentInstruction].type === 'digit' && (
-                  <div className="mt-6 inline-flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-emerald-500/20 to-teal-500/20 border border-emerald-500/30">
-                    <p className="font-mono text-6xl font-bold text-emerald-400">
-                      {currentInstructions[currentInstruction].value}
-                    </p>
+                  <div className="inline-flex h-20 w-20 items-center justify-center rounded-xl bg-[#338089]/10 border border-[#338089]/20">
+                    <span className="font-mono text-5xl font-bold text-[#338089]">{currentInstructions[currentInstruction].value}</span>
                   </div>
                 )}
                 {waitCountdown > 0 && (
-                  <div className="mt-6 inline-flex h-24 w-24 items-center justify-center rounded-2xl bg-gradient-to-br from-amber-500/20 to-orange-500/20 border border-amber-500/30">
-                    <p className="text-5xl font-bold text-amber-400">
-                      {waitCountdown}
-                    </p>
+                  <div className="inline-flex h-20 w-20 items-center justify-center rounded-xl bg-amber-50 border border-amber-200">
+                    <span className="text-4xl font-bold text-amber-600">{waitCountdown}</span>
                   </div>
                 )}
               </div>
 
               <div className="flex gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={handleReset}
-                  className="border-slate-700 bg-slate-800/30 text-slate-300 hover:bg-slate-800/50 hover:text-white backdrop-blur-sm"
-                >
-                  <RotateCcw className="mr-2 h-4 w-4" />
-                  Reset
+                <Button type="button" variant="outline" onClick={handleReset} className="border-[#E5E8E8] text-[#7F8C8D]">
+                  <RotateCcw className="mr-2 h-4 w-4" /> Reset
                 </Button>
-                <Button 
-                  onClick={handleNextInstruction}
-                  className="flex-1 bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
-                  disabled={waitCountdown > 0}
-                >
-                  {currentInstruction < currentInstructions.length - 1 ? 'Next' : 
-                   step === 'instructions' ? 'Start Verification' : 'Continue'}
+                <Button onClick={handleNextInstruction} disabled={waitCountdown > 0} className="flex-1 h-10 rounded-[8px] bg-[#338089] hover:bg-[#266067] text-white font-semibold">
+                  {currentInstruction < currentInstructions.length - 1 ? 'Next' : step === 'instructions' ? 'Verify' : 'Continue'}
                 </Button>
               </div>
-
-              <p className="text-center text-xs text-slate-500">
-                Do NOT try to remember the digits. Just follow each instruction.
-              </p>
+              <p className="text-center text-[12px] text-[#95A5A6]">Don't try to remember the digits</p>
             </CardContent>
           )}
 
           {step === 'master' && (
             <form onSubmit={handleMasterSubmit}>
-              <CardContent className="space-y-4">
-                {error && (
-                  <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
-                    {error}
-                  </div>
-                )}
-                <div className="rounded-lg bg-emerald-500/10 border border-emerald-500/20 p-4 text-sm text-emerald-400">
-                  Your PIN has been generated and entered into your iPhone!
+              <CardContent className="space-y-4 px-6 pb-6">
+                {error && <div className="rounded-[8px] bg-red-50 border border-red-200 p-3 text-[14px] text-red-600">{error}</div>}
+                <div className="rounded-[8px] bg-[#338089]/10 border border-[#338089]/20 p-3 text-[12px] text-[#338089]">
+                  ✓ PIN generated and entered into iPhone!
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="master" className="text-slate-300">Master Password</Label>
+                  <Label className="text-[14px] font-medium text-[#2C3E50]">Master Password</Label>
                   <div className="relative">
-                    <Input
-                      id="master"
-                      type={showPassword ? 'text' : 'password'}
-                      value={masterPassword}
-                      onChange={(e) => setMasterPassword(e.target.value)}
-                      placeholder="••••••••"
-                      className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 pr-10 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white transition-colors"
-                    >
+                    <Input type={showPassword ? 'text' : 'password'} value={masterPassword} onChange={(e) => setMasterPassword(e.target.value)} placeholder="••••••••" className="h-11 rounded-[8px] border-[#E5E8E8] pr-10" />
+                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#95A5A6]">
                       {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
-                  <p className="text-xs text-slate-500">
-                    You'll need this to retrieve your PIN later
-                  </p>
                 </div>
-                <Button type="submit" className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25">
-                  Continue
-                </Button>
+                <Button type="submit" className="w-full h-10 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white font-semibold">Continue</Button>
               </CardContent>
             </form>
           )}
 
           {step === 'confirm' && (
             <form onSubmit={handleConfirmSubmit}>
-              <CardContent className="space-y-4">
-                {error && (
-                  <div className="rounded-lg bg-red-500/10 border border-red-500/20 p-4 text-sm text-red-400">
-                    {error}
-                  </div>
-                )}
+              <CardContent className="space-y-4 px-6 pb-6">
+                {error && <div className="rounded-[8px] bg-red-50 border border-red-200 p-3 text-[14px] text-red-600">{error}</div>}
                 <div className="space-y-2">
-                  <Label htmlFor="confirm" className="text-slate-300">Confirm Master Password</Label>
-                  <Input
-                    id="confirm"
-                    type="password"
-                    value={confirmMaster}
-                    onChange={(e) => setConfirmMaster(e.target.value)}
-                    placeholder="••••••••"
-                    className="border-slate-700 bg-slate-800/50 text-white placeholder:text-slate-500 focus:border-emerald-500/50 focus:ring-emerald-500/20"
-                  />
+                  <Label className="text-[14px] font-medium text-[#2C3E50]">Confirm Password</Label>
+                  <Input type="password" value={confirmMaster} onChange={(e) => setConfirmMaster(e.target.value)} placeholder="••••••••" className="h-11 rounded-[8px] border-[#E5E8E8]" />
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-gradient-to-r from-emerald-500 to-teal-500 hover:from-emerald-600 hover:to-teal-600 text-white shadow-lg shadow-emerald-500/25"
-                  disabled={loading}
-                >
+                <Button type="submit" disabled={loading} className="w-full h-10 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white font-semibold">
                   {loading ? 'Storing...' : 'Store Password'}
                 </Button>
               </CardContent>

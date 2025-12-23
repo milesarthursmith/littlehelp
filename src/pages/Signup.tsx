@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
-import { Leaf, CheckCircle2 } from 'lucide-react'
+import { Shield, CheckCircle2 } from 'lucide-react'
 
 export default function Signup() {
   const [email, setEmail] = useState('')
@@ -46,17 +46,15 @@ export default function Signup() {
 
   if (success) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf8f5] p-4">
-        <Card className="w-full max-w-md border-[#e2ddd5] bg-white card-shadow animate-fade-up">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f4f3]">
-              <CheckCircle2 className="h-8 w-8 text-[#2d9d92]" />
+      <div className="min-h-screen flex items-center justify-center p-6 bg-[#F4F7F6]">
+        <Card className="w-full max-w-[400px] border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up">
+          <CardHeader className="text-center pt-8">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-[#338089]/10">
+              <CheckCircle2 className="h-7 w-7 text-[#338089]" />
             </div>
-            <CardTitle className="text-2xl text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
-              Check your email
-            </CardTitle>
-            <CardDescription className="text-[#718096]">
-              We've sent you a confirmation link. Please check your inbox.
+            <CardTitle className="text-[18px] font-bold text-[#2C3E50]">Check your email</CardTitle>
+            <CardDescription className="text-[14px] text-[#7F8C8D]">
+              We've sent you a confirmation link.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -65,36 +63,29 @@ export default function Signup() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-[#faf8f5] relative overflow-hidden">
-      {/* Decorative background circles */}
-      <div className="deco-circle w-[500px] h-[500px] -top-48 -left-48 animate-breathe" />
-      <div className="deco-circle w-[400px] h-[400px] -bottom-32 -right-32 animate-breathe" style={{ animationDelay: '2s' }} />
-      
-      <div className="w-full max-w-md relative z-10">
-        {/* Logo and heading */}
-        <div className="mb-10 text-center animate-fade-up">
-          <div className="mx-auto mb-5 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#e8f4f3] animate-float">
-            <Leaf className="h-8 w-8 text-[#2d9d92]" strokeWidth={1.5} />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-[#F4F7F6]">
+      <div className="w-full max-w-[400px]">
+        {/* Header */}
+        <div className="mb-8 text-center animate-fade-up">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#338089]">
+            <Shield className="h-7 w-7 text-white" strokeWidth={1.5} />
           </div>
-          <h1 className="text-3xl text-[#2d3748] mb-2" style={{ fontFamily: 'Newsreader, serif' }}>
-            Create your account
-          </h1>
-          <p className="text-[#718096]">
-            Begin your journey to mindful password management
-          </p>
+          <h1 className="text-[24px] font-bold text-[#2C3E50] mb-2">Create account</h1>
+          <p className="text-[14px] text-[#7F8C8D]">Get started with Password Locker</p>
         </div>
 
-        <Card className="border-[#e2ddd5] bg-white card-shadow animate-fade-up delay-1">
+        {/* Card */}
+        <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up delay-1">
           <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-5 pt-6">
+            <CardContent className="space-y-4 pt-6 px-6">
               {error && (
-                <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-600 animate-fade-in">
+                <div className="rounded-[8px] bg-red-50 border border-red-200 px-4 py-3 text-[14px] text-red-600 animate-fade-in">
                   {error}
                 </div>
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="email" className="text-[#4a5568] font-medium">
+                <Label htmlFor="email" className="text-[14px] font-medium text-[#2C3E50]">
                   Email
                 </Label>
                 <Input
@@ -104,12 +95,12 @@ export default function Signup() {
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
                   required
-                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all"
+                  className="h-11 rounded-[8px] border-[#E5E8E8] bg-white text-[#2C3E50] placeholder:text-[#95A5A6] focus:border-[#338089] focus:ring-2 focus:ring-[#338089]/20"
                 />
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-[#4a5568] font-medium">
+                <Label htmlFor="password" className="text-[14px] font-medium text-[#2C3E50]">
                   Password
                 </Label>
                 <Input
@@ -119,13 +110,13 @@ export default function Signup() {
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all font-mono"
+                  className="h-11 rounded-[8px] border-[#E5E8E8] bg-white text-[#2C3E50] placeholder:text-[#95A5A6] focus:border-[#338089] focus:ring-2 focus:ring-[#338089]/20"
                 />
-                <p className="text-xs text-[#a0aec0]">At least 6 characters</p>
+                <p className="text-[12px] text-[#95A5A6]">At least 6 characters</p>
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-[#4a5568] font-medium">
+                <Label htmlFor="confirmPassword" className="text-[14px] font-medium text-[#2C3E50]">
                   Confirm Password
                 </Label>
                 <Input
@@ -135,15 +126,15 @@ export default function Signup() {
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
                   required
-                  className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10 transition-all font-mono"
+                  className="h-11 rounded-[8px] border-[#E5E8E8] bg-white text-[#2C3E50] placeholder:text-[#95A5A6] focus:border-[#338089] focus:ring-2 focus:ring-[#338089]/20"
                 />
               </div>
             </CardContent>
             
-            <CardFooter className="flex flex-col gap-5 pt-2 pb-6">
+            <CardFooter className="flex flex-col gap-4 pt-2 pb-6 px-6">
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-[#2d9d92] hover:bg-[#237a72] text-white font-medium transition-all duration-200 hover:shadow-md hover:shadow-[#2d9d92]/20 rounded-lg"
+                className="w-full h-11 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white text-[14px] font-semibold transition-colors"
                 disabled={loading}
               >
                 {loading ? (
@@ -152,16 +143,13 @@ export default function Signup() {
                     Creating account...
                   </span>
                 ) : (
-                  'Create Account'
+                  'Sign Up'
                 )}
               </Button>
               
-              <p className="text-[#718096] text-center">
+              <p className="text-[14px] text-[#7F8C8D] text-center">
                 Already have an account?{' '}
-                <Link 
-                  to="/login" 
-                  className="text-[#2d9d92] hover:text-[#237a72] font-medium transition-colors"
-                >
+                <Link to="/login" className="text-[#338089] font-medium hover:underline">
                   Sign in
                 </Link>
               </p>

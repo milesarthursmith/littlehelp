@@ -4,8 +4,8 @@ import { useAuth } from '@/hooks/useAuth'
 import { supabase, type PasswordVault } from '@/lib/supabase'
 import { decryptPassword } from '@/lib/encryption'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
-import { Leaf, Plus, LogOut, Key, Trash2, BookOpen, Eye, EyeOff, Copy, Check, Calendar, Download, Sparkles } from 'lucide-react'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
+import { Shield, Plus, LogOut, Key, Trash2, BookOpen, Eye, EyeOff, Copy, Check, Calendar, Download, Home, Settings } from 'lucide-react'
 
 export default function Dashboard() {
   const { user, signOut } = useAuth()
@@ -111,207 +111,211 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-[#faf8f5]">
-      {/* Header */}
-      <header className="border-b border-[#e2ddd5] bg-white/80 backdrop-blur-sm sticky top-0 z-50">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-6 py-4">
+    <div className="min-h-screen bg-[#F4F7F6] flex">
+      {/* Sidebar */}
+      <aside className="w-[220px] bg-white border-r border-[#E5E8E8] flex flex-col">
+        {/* Logo */}
+        <div className="p-6 border-b border-[#E5E8E8]">
           <div className="flex items-center gap-3">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#e8f4f3]">
-              <Leaf className="h-5 w-5 text-[#2d9d92]" strokeWidth={1.5} />
+            <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-[#338089]">
+              <Shield className="h-5 w-5 text-white" strokeWidth={1.5} />
             </div>
-            <span className="text-xl font-medium text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
-              Password Locker
-            </span>
-          </div>
-          
-          <div className="flex items-center gap-2">
-            <Link to="/pricing">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-[#2d9d92] hover:bg-[#e8f4f3] hover:text-[#237a72]"
-              >
-                <Sparkles className="mr-1.5 h-4 w-4" />
-                <span className="hidden sm:inline">Upgrade</span>
-              </Button>
-            </Link>
-            <Link to="/instructions">
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-[#718096] hover:bg-[#f5f1eb] hover:text-[#4a5568]"
-              >
-                <BookOpen className="mr-1.5 h-4 w-4" />
-                <span className="hidden sm:inline">Guide</span>
-              </Button>
-            </Link>
-            <div className="hidden sm:block h-6 w-px bg-[#e2ddd5] mx-1" />
-            <span className="hidden sm:block text-sm text-[#a0aec0] max-w-[150px] truncate">
-              {user?.email}
-            </span>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              onClick={handleSignOut}
-              className="text-[#718096] hover:bg-[#f5f1eb] hover:text-[#4a5568]"
-            >
-              <LogOut className="h-4 w-4" />
-            </Button>
+            <span className="text-[16px] font-semibold text-[#2C3E50]">PassLocker</span>
           </div>
         </div>
-      </header>
+        
+        {/* Nav */}
+        <nav className="flex-1 p-4">
+          <ul className="space-y-1">
+            <li>
+              <Link 
+                to="/dashboard" 
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] bg-[#338089] text-white text-[14px] font-medium"
+              >
+                <Home className="h-5 w-5" strokeWidth={1.5} />
+                Home
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/instructions" 
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[#7F8C8D] hover:bg-[#F4F7F6] text-[14px] font-medium transition-colors"
+              >
+                <BookOpen className="h-5 w-5" strokeWidth={1.5} />
+                Instructions
+              </Link>
+            </li>
+            <li>
+              <Link 
+                to="/pricing" 
+                className="flex items-center gap-3 px-3 py-2.5 rounded-[8px] text-[#7F8C8D] hover:bg-[#F4F7F6] text-[14px] font-medium transition-colors"
+              >
+                <Settings className="h-5 w-5" strokeWidth={1.5} />
+                Settings
+              </Link>
+            </li>
+          </ul>
+        </nav>
+        
+        {/* User */}
+        <div className="p-4 border-t border-[#E5E8E8]">
+          <div className="flex items-center gap-3 mb-3">
+            <div className="h-8 w-8 rounded-full bg-[#338089] flex items-center justify-center text-white text-[12px] font-semibold">
+              {user?.email?.[0].toUpperCase()}
+            </div>
+            <span className="text-[12px] text-[#7F8C8D] truncate flex-1">{user?.email}</span>
+          </div>
+          <button 
+            onClick={handleSignOut}
+            className="flex items-center gap-2 text-[14px] text-[#7F8C8D] hover:text-[#2C3E50] transition-colors"
+          >
+            <LogOut className="h-4 w-4" strokeWidth={1.5} />
+            Log out
+          </button>
+        </div>
+      </aside>
 
       {/* Main Content */}
-      <main className="mx-auto max-w-5xl px-6 py-10">
-        <div className="mb-10 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between animate-fade-up">
-          <div>
-            <h1 className="text-3xl text-[#2d3748] mb-2" style={{ fontFamily: 'Newsreader, serif' }}>
-              Your Vault
-            </h1>
-            <p className="text-[#718096]">
-              Passwords stored with intention, retrieved with patience
-            </p>
-          </div>
-          <Link to="/store">
-            <Button className="bg-[#2d9d92] hover:bg-[#237a72] text-white shadow-sm hover:shadow-md transition-all">
-              <Plus className="mr-2 h-4 w-4" />
-              New Password
-            </Button>
-          </Link>
-        </div>
-
-        {loading ? (
-          <div className="flex items-center justify-center py-20">
-            <div className="flex flex-col items-center gap-3">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2d9d92] border-t-transparent" />
-              <div className="text-[#718096]">Loading your vault...</div>
+      <main className="flex-1 p-8">
+        <div className="max-w-[900px]">
+          {/* Header */}
+          <div className="flex items-center justify-between mb-8 animate-fade-up">
+            <div>
+              <h1 className="text-[24px] font-bold text-[#2C3E50] mb-1">Your Vault</h1>
+              <p className="text-[14px] text-[#7F8C8D]">Manage your stored passwords</p>
             </div>
+            <Link to="/store">
+              <Button className="h-10 px-5 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white text-[14px] font-semibold gap-2">
+                <Plus className="h-4 w-4" strokeWidth={2} />
+                Add a new password
+              </Button>
+            </Link>
           </div>
-        ) : vaults.length === 0 ? (
-          <Card className="border-[#e2ddd5] bg-white card-shadow animate-fade-up delay-1">
-            <CardContent className="flex flex-col items-center justify-center py-16 px-6">
-              <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-[#f5f1eb]">
-                <Key className="h-9 w-9 text-[#a0aec0]" strokeWidth={1.5} />
+
+          {loading ? (
+            <div className="flex items-center justify-center py-20">
+              <div className="flex flex-col items-center gap-3">
+                <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#338089] border-t-transparent" />
+                <div className="text-[14px] text-[#7F8C8D]">Loading...</div>
               </div>
-              <h3 className="mb-2 text-xl text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
-                Your vault is empty
-              </h3>
-              <p className="mb-6 text-center text-[#718096] max-w-sm">
-                Store a password you want to keep out of easy reach. Perfect for Screen Time passcodes.
-              </p>
-              <Link to="/store">
-                <Button className="bg-[#2d9d92] hover:bg-[#237a72] text-white">
-                  <Plus className="mr-2 h-4 w-4" />
-                  Store Your First Password
-                </Button>
-              </Link>
-            </CardContent>
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-1 lg:grid-cols-2">
-            {vaults.map((vault, index) => (
-              <Card 
-                key={vault.id} 
-                className="border-[#e2ddd5] bg-white card-shadow hover:card-shadow-hover transition-all duration-200 animate-fade-up"
-                style={{ animationDelay: `${index * 0.1}s` }}
-              >
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <CardTitle className="text-lg font-medium text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
-                        {vault.name}
-                      </CardTitle>
-                      <p className="text-sm text-[#a0aec0] mt-1">
-                        Added {new Date(vault.created_at).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric', 
-                          year: 'numeric' 
-                        })}
-                      </p>
-                    </div>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      onClick={() => handleDelete(vault.id)}
-                      className="opacity-0 group-hover:opacity-100 transition-opacity text-[#e53e3e] hover:bg-red-50 hover:text-[#c53030] -mr-2"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  {revealedPasswords[vault.id] ? (
-                    <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 animate-fade-in">
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-xs font-medium text-amber-700">TEST MODE</span>
-                        <div className="flex gap-1">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleCopyPassword(revealedPasswords[vault.id], vault.id)}
-                            className="h-6 px-2 text-amber-700 hover:bg-amber-100"
-                          >
-                            {copiedId === vault.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
-                          </Button>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={(e) => handleTestOverride(vault, e)}
-                            className="h-6 px-2 text-amber-700 hover:bg-amber-100"
-                          >
-                            <EyeOff className="h-3 w-3" />
-                          </Button>
-                        </div>
+            </div>
+          ) : vaults.length === 0 ? (
+            <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up delay-1">
+              <CardContent className="flex flex-col items-center justify-center py-16 px-6">
+                <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-[#F4F7F6]">
+                  <Key className="h-7 w-7 text-[#95A5A6]" strokeWidth={1.5} />
+                </div>
+                <h3 className="text-[18px] font-bold text-[#2C3E50] mb-2">No passwords yet</h3>
+                <p className="text-[14px] text-[#7F8C8D] text-center max-w-[300px] mb-6">
+                  Store a password you want to keep out of easy reach.
+                </p>
+                <Link to="/store">
+                  <Button className="h-10 px-5 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white text-[14px] font-semibold gap-2">
+                    <Plus className="h-4 w-4" />
+                    Add your first password
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4 lg:grid-cols-2">
+              {vaults.map((vault, index) => (
+                <Card 
+                  key={vault.id} 
+                  className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow hover:card-shadow-hover transition-shadow animate-fade-up"
+                  style={{ animationDelay: `${index * 0.05}s` }}
+                >
+                  <CardHeader className="pb-3 px-4 pt-4">
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="text-[16px] font-semibold text-[#2C3E50]">{vault.name}</h3>
+                        <p className="text-[12px] text-[#95A5A6] mt-0.5">
+                          {new Date(vault.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </p>
                       </div>
-                      <p className="font-mono text-lg font-semibold text-amber-900 tracking-wider">
-                        {revealedPasswords[vault.id]}
-                      </p>
-                    </div>
-                  ) : null}
-                  
-                  <div className="flex gap-2">
-                    <Link to={`/retrieve/${vault.id}`} className="flex-1">
                       <Button 
-                        className="w-full bg-[#e8f4f3] hover:bg-[#d1ebe8] border border-[#2d9d92]/20 text-[#2d9d92] hover:text-[#237a72] transition-all"
-                        variant="ghost"
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={() => handleDelete(vault.id)}
+                        className="h-8 w-8 p-0 text-[#95A5A6] hover:text-[#E74C3C] hover:bg-red-50"
                       >
-                        <Key className="mr-2 h-4 w-4" />
-                        Retrieve
+                        <Trash2 className="h-4 w-4" strokeWidth={1.5} />
                       </Button>
-                    </Link>
-                    <Link to={`/schedule/${vault.id}`}>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="px-4 pb-4 space-y-3">
+                    {revealedPasswords[vault.id] && (
+                      <div className="rounded-[8px] bg-amber-50 border border-amber-200 p-3 animate-fade-in">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="text-[12px] font-medium text-amber-700">TEST MODE</span>
+                          <div className="flex gap-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleCopyPassword(revealedPasswords[vault.id], vault.id)}
+                              className="h-6 w-6 p-0 text-amber-700 hover:bg-amber-100"
+                            >
+                              {copiedId === vault.id ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => handleTestOverride(vault, e)}
+                              className="h-6 w-6 p-0 text-amber-700 hover:bg-amber-100"
+                            >
+                              <EyeOff className="h-3 w-3" />
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="font-mono text-[16px] font-semibold text-amber-900 tracking-wide">
+                          {revealedPasswords[vault.id]}
+                        </p>
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-2">
+                      <Link to={`/retrieve/${vault.id}`} className="flex-1">
+                        <Button 
+                          className="w-full h-9 rounded-[8px] bg-[#338089] hover:bg-[#266067] text-white text-[14px] font-medium gap-2"
+                        >
+                          <Key className="h-4 w-4" strokeWidth={1.5} />
+                          Retrieve
+                        </Button>
+                      </Link>
+                      <Link to={`/schedule/${vault.id}`}>
+                        <Button
+                          variant="outline"
+                          className="h-9 w-9 p-0 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D] hover:bg-[#F4F7F6] hover:text-[#338089]"
+                        >
+                          <Calendar className="h-4 w-4" strokeWidth={1.5} />
+                        </Button>
+                      </Link>
                       <Button
                         variant="outline"
-                        className="border-[#e2ddd5] bg-white text-[#718096] hover:bg-[#f5f1eb] hover:text-[#4a5568]"
-                        title="Scheduled unlocks"
+                        onClick={() => handleExportVault(vault)}
+                        className="h-9 w-9 p-0 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D] hover:bg-[#F4F7F6] hover:text-[#338089]"
                       >
-                        <Calendar className="h-4 w-4" />
+                        <Download className="h-4 w-4" strokeWidth={1.5} />
                       </Button>
-                    </Link>
-                    <Button
-                      variant="outline"
-                      onClick={() => handleExportVault(vault)}
-                      className="border-[#e2ddd5] bg-white text-[#718096] hover:bg-[#f5f1eb] hover:text-[#4a5568]"
-                      title="Export backup"
-                    >
-                      <Download className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      onClick={(e) => handleTestOverride(vault, e)}
-                      className="border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100"
-                      title="TEST OVERRIDE"
-                    >
-                      {revealedPasswords[vault.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        )}
+                      <Button
+                        variant="outline"
+                        onClick={(e) => handleTestOverride(vault, e)}
+                        className="h-9 w-9 p-0 rounded-[8px] border-amber-200 bg-amber-50 text-amber-600 hover:bg-amber-100"
+                        title="TEST OVERRIDE"
+                      >
+                        {revealedPasswords[vault.id] ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
       </main>
     </div>
   )

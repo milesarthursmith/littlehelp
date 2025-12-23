@@ -6,16 +6,16 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { ArrowLeft, Leaf, Copy, Check, Eye, EyeOff, Clock, AlertTriangle, Calendar } from 'lucide-react'
+import { ArrowLeft, Shield, Copy, Check, Eye, EyeOff, Clock, AlertTriangle, Calendar, Heart } from 'lucide-react'
 
-// Mindfulness-themed typing passages
 const TYPING_PASSAGES = [
-  `The path to self-discipline begins with small, consistent choices. Each time you resist an impulse, you strengthen your ability to focus on what truly matters. This moment of friction is not a barrier—it is a gift. By taking the time to complete this challenge, you are proving to yourself that you have the patience and determination to overcome distraction. Remember why you set these boundaries in the first place. Your future self will thank you for the discipline you show today. Keep typing, stay focused, and trust the process.`,
-  `Discipline is choosing between what you want now and what you want most. The temporary pleasure of distraction fades quickly, but the satisfaction of staying focused compounds over time. Every keystroke here is a small victory, a proof that you can delay gratification when it matters. You are rewiring your brain, one moment at a time. The urge that brought you here will pass, as all urges do. When you look back on this moment, you will be grateful you persisted.`,
-  `Success is not about having more willpower than others. It is about designing your environment and habits so that the right choice becomes the easy choice. That is exactly what you are doing right now. By creating friction between yourself and distraction, you are making focus the path of least resistance. This typing challenge is your ally, not your enemy. Embrace it, complete it, and remember this feeling of accomplishment.`,
+  `The path to self-discipline begins with small, consistent choices. Each time you resist an impulse, you strengthen your ability to focus on what truly matters. This moment of friction is not a barrier—it is a gift. By taking the time to complete this challenge, you are proving to yourself that you have the patience and determination to overcome distraction.`,
+  `Discipline is choosing between what you want now and what you want most. The temporary pleasure of distraction fades quickly, but the satisfaction of staying focused compounds over time. Every keystroke here is a small victory, a proof that you can delay gratification when it matters. The urge that brought you here will pass, as all urges do.`,
+  `Success is not about having more willpower than others. It is about designing your environment and habits so that the right choice becomes the easy choice. That is exactly what you are doing right now. By creating friction between yourself and distraction, you are making focus the path of least resistance.`,
 ]
 
 const EMERGENCY_DELAY_HOURS = 24
+const EVERY_ORG_DONATE_URL = 'https://www.every.org/donate'
 
 export default function RetrievePassword() {
   const { id } = useParams<{ id: string }>()
@@ -48,30 +48,20 @@ export default function RetrievePassword() {
   const currentPassage = TYPING_PASSAGES[currentPassageIndex]
   const totalPassages = TYPING_PASSAGES.length
 
-  useEffect(() => {
-    fetchData()
-  }, [id])
+  useEffect(() => { fetchData() }, [id])
 
   useEffect(() => {
     if (!emergencyRequest || emergencyRequest.cancelled) return
-    
     const updateCountdown = () => {
       const unlockTime = new Date(emergencyRequest.unlock_at)
       const now = new Date()
       const diff = unlockTime.getTime() - now.getTime()
-      
-      if (diff <= 0) {
-        setEmergencyCountdown('Ready!')
-        setStep('master')
-        return
-      }
-      
+      if (diff <= 0) { setEmergencyCountdown('Ready!'); setStep('master'); return }
       const hours = Math.floor(diff / (1000 * 60 * 60))
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60))
       const seconds = Math.floor((diff % (1000 * 60)) / 1000)
       setEmergencyCountdown(`${hours}h ${minutes}m ${seconds}s`)
     }
-    
     updateCountdown()
     const interval = setInterval(updateCountdown, 1000)
     return () => clearInterval(interval)
@@ -79,343 +69,212 @@ export default function RetrievePassword() {
 
   const fetchData = async () => {
     if (!id) return
-
-    const { data: vaultData, error: vaultError } = await supabase
-      .from('password_vaults')
-      .select('*')
-      .eq('id', id)
-      .single()
-
-    if (vaultError) {
-      console.error('Error fetching vault:', vaultError)
-      navigate('/dashboard')
-      return
-    }
+    const { data: vaultData, error: vaultError } = await supabase.from('password_vaults').select('*').eq('id', id).single()
+    if (vaultError) { navigate('/dashboard'); return }
     setVault(vaultData)
 
-    const { data: scheduleData } = await supabase
-      .from('scheduled_unlocks')
-      .select('*')
-      .eq('vault_id', id)
-      .eq('enabled', true)
-
+    const { data: scheduleData } = await supabase.from('scheduled_unlocks').select('*').eq('vault_id', id).eq('enabled', true)
     const scheduledUnlocks = scheduleData || []
     setSchedules(scheduledUnlocks)
 
-    if (isWithinScheduledUnlock(scheduledUnlocks)) {
-      setIsScheduledUnlock(true)
-      setStep('scheduled')
-      setLoading(false)
-      return
-    }
+    if (isWithinScheduledUnlock(scheduledUnlocks)) { setIsScheduledUnlock(true); setStep('scheduled'); setLoading(false); return }
 
-    const { data: emergencyData } = await supabase
-      .from('emergency_access_requests')
-      .select('*')
-      .eq('vault_id', id)
-      .eq('cancelled', false)
-      .is('completed_at', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .single()
-
+    const { data: emergencyData } = await supabase.from('emergency_access_requests').select('*').eq('vault_id', id).eq('cancelled', false).is('completed_at', null).order('created_at', { ascending: false }).limit(1).single()
     if (emergencyData) {
       setEmergencyRequest(emergencyData)
-      if (isEmergencyAccessReady(emergencyData)) {
-        setStep('master')
-      } else {
-        setStep('emergency-pending')
-      }
-    } else {
-      setStep('typing')
-    }
-
+      setStep(isEmergencyAccessReady(emergencyData) ? 'master' : 'emergency-pending')
+    } else { setStep('typing') }
     setLoading(false)
   }
 
   const handleRequestEmergencyAccess = async () => {
     if (!vault) return
     setRequestingEmergency(true)
-
     const unlockAt = new Date()
     unlockAt.setHours(unlockAt.getHours() + EMERGENCY_DELAY_HOURS)
-
-    const { data, error } = await supabase
-      .from('emergency_access_requests')
-      .insert({
-        vault_id: vault.id,
-        user_id: vault.user_id,
-        unlock_at: unlockAt.toISOString(),
-      })
-      .select()
-      .single()
-
+    const { data, error } = await supabase.from('emergency_access_requests').insert({ vault_id: vault.id, user_id: vault.user_id, unlock_at: unlockAt.toISOString() }).select().single()
     if (error) {
-      console.error('Error creating emergency request:', error)
-      if (error.code === '42P01') {
-        alert('Database table not found. Please run the latest supabase-schema.sql in your Supabase SQL Editor.')
-      } else {
-        alert(`Failed to create emergency access request: ${error.message}`)
-      }
-    } else {
-      setEmergencyRequest(data)
-      setStep('emergency-pending')
-    }
+      if (error.code === '42P01') alert('Database table not found. Please run the latest supabase-schema.sql.')
+      else alert(`Failed: ${error.message}`)
+    } else { setEmergencyRequest(data); setStep('emergency-pending') }
     setRequestingEmergency(false)
   }
 
   const handleCancelEmergency = async () => {
     if (!emergencyRequest) return
-
-    await supabase
-      .from('emergency_access_requests')
-      .update({ cancelled: true })
-      .eq('id', emergencyRequest.id)
-
+    await supabase.from('emergency_access_requests').update({ cancelled: true }).eq('id', emergencyRequest.id)
     setEmergencyRequest(null)
     setStep('typing')
+  }
+
+  const handleDonateToSkip = () => {
+    // Open Every.org donation page
+    // After donation, user would receive a skip code or we'd verify via webhook
+    window.open(EVERY_ORG_DONATE_URL, '_blank')
   }
 
   const handleTypingChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value
     const targetChar = currentPassage[value.length - 1]
     const typedChar = value[value.length - 1]
-
-    if (typedChar !== targetChar && value.length > typedText.length) {
-      setErrors(prev => prev + 1)
-      return
-    }
-
+    if (typedChar !== targetChar && value.length > typedText.length) { setErrors(prev => prev + 1); return }
     setTypedText(value)
-
     if (value === currentPassage) {
-      if (currentPassageIndex < totalPassages - 1) {
-        setCurrentPassageIndex(currentPassageIndex + 1)
-        setTypedText('')
-      } else {
-        setStep('master')
-      }
+      if (currentPassageIndex < totalPassages - 1) { setCurrentPassageIndex(currentPassageIndex + 1); setTypedText('') }
+      else { setStep('master') }
     }
   }, [typedText.length, currentPassage, currentPassageIndex, totalPassages])
 
-  const overallProgress = Math.round(
-    ((currentPassageIndex * 100) + (typedText.length / currentPassage.length * 100)) / totalPassages
-  )
+  const overallProgress = Math.round(((currentPassageIndex * 100) + (typedText.length / currentPassage.length * 100)) / totalPassages)
 
   const handleMasterSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!vault) return
-
-    setDecrypting(true)
-    setDecryptError('')
-
+    setDecrypting(true); setDecryptError('')
     try {
-      const decrypted = await decryptPassword(
-        {
-          ciphertext: vault.encrypted_password,
-          iv: vault.iv,
-          salt: vault.salt,
-        },
-        masterPassword
-      )
-      setRevealedPassword(decrypted)
-      setStep('reveal')
-
-      if (emergencyRequest) {
-        await supabase
-          .from('emergency_access_requests')
-          .update({ completed_at: new Date().toISOString() })
-          .eq('id', emergencyRequest.id)
-      }
-    } catch {
-      setDecryptError('Invalid master password. Please try again.')
-    }
+      const decrypted = await decryptPassword({ ciphertext: vault.encrypted_password, iv: vault.iv, salt: vault.salt }, masterPassword)
+      setRevealedPassword(decrypted); setStep('reveal')
+      if (emergencyRequest) await supabase.from('emergency_access_requests').update({ completed_at: new Date().toISOString() }).eq('id', emergencyRequest.id)
+    } catch { setDecryptError('Invalid master password.') }
     setDecrypting(false)
   }
 
-  const handleCopy = () => {
-    navigator.clipboard.writeText(revealedPassword)
-    setCopied(true)
-    setTimeout(() => setCopied(false), 2000)
-  }
+  const handleCopy = () => { navigator.clipboard.writeText(revealedPassword); setCopied(true); setTimeout(() => setCopied(false), 2000) }
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#faf8f5]">
-        <div className="flex flex-col items-center gap-3">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2d9d92] border-t-transparent" />
-          <div className="text-[#718096]">Loading...</div>
-        </div>
-      </div>
-    )
-  }
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-[#F4F7F6]">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#338089] border-t-transparent" />
+    </div>
+  )
 
   return (
-    <div className="min-h-screen bg-[#faf8f5] p-4">
-      <div className="mx-auto max-w-2xl pt-8">
-        <Link to="/dashboard" className="mb-6 inline-flex items-center text-[#718096] hover:text-[#2d3748] transition-colors">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+    <div className="min-h-screen bg-[#F4F7F6] p-6">
+      <div className="max-w-[540px] mx-auto pt-8">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-[14px] text-[#7F8C8D] hover:text-[#2C3E50] mb-6 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
         </Link>
 
-        <Card className="border-[#e2ddd5] bg-white card-shadow animate-fade-up">
-          <CardHeader className="text-center">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[#e8f4f3]">
-              <Leaf className="h-7 w-7 text-[#2d9d92]" strokeWidth={1.5} />
+        <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up">
+          <CardHeader className="text-center pb-2">
+            <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-xl bg-[#338089]">
+              <Shield className="h-6 w-6 text-white" strokeWidth={1.5} />
             </div>
-            <CardTitle className="text-2xl text-[#2d3748]" style={{ fontFamily: 'Newsreader, serif' }}>
-              {step === 'checking' && 'Checking Access...'}
+            <CardTitle className="text-[18px] font-bold text-[#2C3E50]">
               {step === 'scheduled' && 'Scheduled Unlock'}
-              {step === 'emergency-pending' && 'Emergency Access Pending'}
-              {step === 'typing' && `Mindful Typing (${currentPassageIndex + 1}/${totalPassages})`}
-              {step === 'master' && 'Enter Master Password'}
+              {step === 'emergency-pending' && 'Emergency Access'}
+              {step === 'typing' && `Typing Challenge (${currentPassageIndex + 1}/${totalPassages})`}
+              {step === 'master' && 'Enter Password'}
               {step === 'reveal' && 'Password Retrieved'}
             </CardTitle>
-            <CardDescription className="text-[#718096]">
-              {step === 'scheduled' && 'You are within a scheduled unlock window'}
-              {step === 'emergency-pending' && `Access available in ${emergencyCountdown}`}
-              {step === 'typing' && `Retrieving: ${vault?.name}`}
-              {step === 'master' && 'Enter your master password to decrypt'}
+            <CardDescription className="text-[14px] text-[#7F8C8D]">
+              {step === 'scheduled' && 'Challenge skipped during scheduled window'}
+              {step === 'emergency-pending' && `Available in ${emergencyCountdown}`}
+              {step === 'typing' && vault?.name}
+              {step === 'master' && 'Decrypt with your master password'}
               {step === 'reveal' && vault?.name}
             </CardDescription>
           </CardHeader>
 
-          <CardContent>
-            {/* Scheduled Unlock */}
+          <CardContent className="px-6 pb-6">
             {step === 'scheduled' && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="rounded-lg bg-[#e8f4f3] border border-[#2d9d92]/20 p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Calendar className="h-5 w-5 text-[#2d9d92]" />
-                    <span className="font-medium text-[#2d9d92]">Scheduled Unlock Active</span>
-                  </div>
-                  <p className="text-sm text-[#718096]">
-                    No typing challenge required during this window.
-                  </p>
+              <div className="space-y-4 animate-fade-in">
+                <div className="rounded-[8px] bg-[#338089]/10 border border-[#338089]/20 p-4 flex items-center gap-3">
+                  <Calendar className="h-5 w-5 text-[#338089]" />
+                  <span className="text-[14px] text-[#338089] font-medium">Scheduled unlock active</span>
                 </div>
-                <Button 
-                  onClick={() => setStep('master')}
-                  className="w-full bg-[#2d9d92] hover:bg-[#237a72] text-white"
-                >
+                <Button onClick={() => setStep('master')} className="w-full h-10 rounded-[8px] bg-[#338089] hover:bg-[#266067] text-white text-[14px] font-semibold">
                   Continue
                 </Button>
               </div>
             )}
 
-            {/* Emergency Pending */}
             {step === 'emergency-pending' && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="rounded-lg bg-amber-50 border border-amber-200 p-4">
-                  <div className="flex items-center gap-3 mb-2">
-                    <Clock className="h-5 w-5 text-amber-600" />
-                    <span className="font-medium text-amber-700">Emergency Access Requested</span>
-                  </div>
-                  <p className="text-sm text-[#718096] mb-4">
-                    Your password will be available in:
-                  </p>
-                  <p className="text-3xl font-semibold text-[#2d3748] text-center" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
-                    {emergencyCountdown}
-                  </p>
+              <div className="space-y-4 animate-fade-in">
+                <div className="rounded-[8px] bg-amber-50 border border-amber-200 p-4 text-center">
+                  <Clock className="h-6 w-6 text-amber-600 mx-auto mb-2" />
+                  <p className="text-[24px] font-bold text-[#2C3E50] font-mono">{emergencyCountdown}</p>
+                  <p className="text-[12px] text-[#7F8C8D] mt-1">Time remaining</p>
                 </div>
-                <Button 
-                  variant="outline"
-                  onClick={handleCancelEmergency}
-                  className="w-full border-[#e2ddd5] text-[#718096] hover:bg-[#f5f1eb]"
-                >
+                <Button variant="outline" onClick={handleCancelEmergency} className="w-full h-10 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D]">
                   Cancel & Type Instead
                 </Button>
-                <p className="text-center text-xs text-[#a0aec0]">
-                  The waiting period helps prevent impulsive access
-                </p>
               </div>
             )}
 
-            {/* Typing Challenge */}
             {step === 'typing' && (
-              <div className="space-y-6 animate-fade-in">
-                {/* Emergency option */}
-                <div className="rounded-lg bg-[#f5f1eb] border border-[#e2ddd5] p-4">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4 text-amber-600" />
-                      <span className="text-sm text-[#718096]">Need emergency access?</span>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRequestEmergencyAccess}
-                      disabled={requestingEmergency}
-                      className="text-amber-600 hover:text-amber-700 hover:bg-amber-50"
+              <div className="space-y-5 animate-fade-in">
+                {/* Skip options */}
+                <div className="rounded-[8px] bg-[#F4F7F6] border border-[#E5E8E8] p-4 space-y-3">
+                  <p className="text-[12px] text-[#7F8C8D] text-center font-medium">Skip the challenge</p>
+                  <div className="flex gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleDonateToSkip}
+                      className="flex-1 h-9 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D] hover:bg-pink-50 hover:text-pink-600 hover:border-pink-200"
                     >
-                      {requestingEmergency ? 'Requesting...' : `${EMERGENCY_DELAY_HOURS}h wait`}
+                      <Heart className="h-3.5 w-3.5 mr-1.5" />
+                      Donate $5
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={handleRequestEmergencyAccess} 
+                      disabled={requestingEmergency}
+                      className="flex-1 h-9 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D] hover:bg-amber-50 hover:text-amber-600 hover:border-amber-200"
+                    >
+                      <AlertTriangle className="h-3.5 w-3.5 mr-1.5" />
+                      {requestingEmergency ? 'Requesting...' : `Wait ${EMERGENCY_DELAY_HOURS}h`}
                     </Button>
                   </div>
+                  <p className="text-[10px] text-[#95A5A6] text-center">
+                    Donate to charity or request emergency access
+                  </p>
                 </div>
 
-                {/* Progress */}
                 <div className="space-y-2">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-[#718096]">Overall Progress</span>
-                    <span className="text-[#2d9d92] font-medium">{overallProgress}%</span>
+                  <div className="flex justify-between text-[12px]">
+                    <span className="text-[#7F8C8D]">Progress</span>
+                    <span className="text-[#338089] font-medium">{overallProgress}%</span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[#e8f4f3]">
-                    <div
-                      className="h-full bg-[#2d9d92] transition-all duration-300"
-                      style={{ width: `${overallProgress}%` }}
-                    />
+                  <div className="h-2 rounded-full bg-[#E5E8E8] overflow-hidden">
+                    <div className="h-full bg-[#338089] transition-all duration-300" style={{ width: `${overallProgress}%` }} />
                   </div>
                 </div>
 
-                {/* Passage */}
-                <div className="rounded-xl bg-[#faf8f5] border border-[#e2ddd5] p-5 text-base leading-relaxed" style={{ fontFamily: 'Newsreader, serif' }}>
-                  <span className="text-[#2d9d92]">{typedText}</span>
-                  <span className="animate-pulse text-[#2d9d92]">|</span>
-                  <span className="text-[#a0aec0]">{currentPassage.slice(typedText.length)}</span>
+                <div className="rounded-[8px] bg-[#F4F7F6] border border-[#E5E8E8] p-4 text-[14px] leading-relaxed">
+                  <span className="text-[#338089]">{typedText}</span>
+                  <span className="animate-pulse text-[#338089]">|</span>
+                  <span className="text-[#95A5A6]">{currentPassage.slice(typedText.length)}</span>
                 </div>
 
-                {/* Input */}
                 <div className="space-y-2">
                   <Input
                     ref={inputRef}
                     value={typedText}
                     onChange={handleTypingChange}
                     placeholder="Start typing..."
-                    className="h-12 border-[#e2ddd5] bg-white text-[#2d3748] placeholder:text-[#a0aec0] focus:border-[#2d9d92] focus:ring-2 focus:ring-[#2d9d92]/10"
                     autoFocus
+                    className="h-11 rounded-[8px] border-[#E5E8E8] bg-white text-[#2C3E50] focus:border-[#338089]"
                   />
-                  {errors > 0 && (
-                    <p className="text-sm text-amber-600">
-                      {errors} error{errors !== 1 ? 's' : ''} — breathe, type carefully
-                    </p>
-                  )}
+                  {errors > 0 && <p className="text-[12px] text-amber-600">{errors} error{errors !== 1 ? 's' : ''}</p>}
                 </div>
-
-                <p className="text-center text-sm text-[#a0aec0]">
-                  Complete all {totalPassages} passages mindfully
-                </p>
               </div>
             )}
 
-            {/* Master Password */}
             {step === 'master' && (
               <form onSubmit={handleMasterSubmit} className="space-y-4 animate-fade-in">
                 {isScheduledUnlock && (
-                  <div className="rounded-lg bg-[#e8f4f3] border border-[#2d9d92]/20 p-3 text-sm text-[#2d9d92]">
-                    ✓ Scheduled unlock — challenge skipped
-                  </div>
+                  <div className="rounded-[8px] bg-[#338089]/10 border border-[#338089]/20 p-3 text-[12px] text-[#338089]">✓ Scheduled unlock</div>
                 )}
                 {emergencyRequest && isEmergencyAccessReady(emergencyRequest) && (
-                  <div className="rounded-lg bg-amber-50 border border-amber-200 p-3 text-sm text-amber-700">
-                    ✓ Emergency access granted
-                  </div>
+                  <div className="rounded-[8px] bg-amber-50 border border-amber-200 p-3 text-[12px] text-amber-700">✓ Emergency access granted</div>
                 )}
                 {decryptError && (
-                  <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-600">
-                    {decryptError}
-                  </div>
+                  <div className="rounded-[8px] bg-red-50 border border-red-200 p-3 text-[14px] text-red-600">{decryptError}</div>
                 )}
                 <div className="space-y-2">
-                  <Label htmlFor="master" className="text-[#4a5568] font-medium">Master Password</Label>
+                  <Label className="text-[14px] font-medium text-[#2C3E50]">Master Password</Label>
                   <div className="relative">
                     <Input
                       id="master"
@@ -423,81 +282,41 @@ export default function RetrievePassword() {
                       value={masterPassword}
                       onChange={(e) => setMasterPassword(e.target.value)}
                       placeholder="••••••••"
-                      className="h-11 border-[#e2ddd5] bg-[#faf8f5] text-[#2d3748] pr-10 focus:border-[#2d9d92] font-mono"
                       autoFocus
+                      className="h-11 rounded-[8px] border-[#E5E8E8] bg-white pr-10 focus:border-[#338089]"
                     />
-                    <button
-                      type="button"
-                      onClick={() => setShowMaster(!showMaster)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#a0aec0] hover:text-[#718096] transition-colors"
-                    >
+                    <button type="button" onClick={() => setShowMaster(!showMaster)} className="absolute right-3 top-1/2 -translate-y-1/2 text-[#95A5A6] hover:text-[#7F8C8D]">
                       {showMaster ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                     </button>
                   </div>
                 </div>
-                <Button 
-                  type="submit" 
-                  className="w-full bg-[#2d9d92] hover:bg-[#237a72] text-white"
-                  disabled={decrypting || !masterPassword}
-                >
-                  {decrypting ? (
-                    <span className="flex items-center gap-2">
-                      <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
-                      Decrypting...
-                    </span>
-                  ) : (
-                    'Unlock Password'
-                  )}
+                <Button type="submit" disabled={decrypting || !masterPassword} className="w-full h-10 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white text-[14px] font-semibold">
+                  {decrypting ? <><span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent mr-2" />Decrypting...</> : 'Unlock'}
                 </Button>
               </form>
             )}
 
-            {/* Reveal */}
             {step === 'reveal' && (
-              <div className="space-y-6 animate-fade-in">
-                <div className="rounded-xl bg-[#faf8f5] border border-[#e2ddd5] p-6 text-center">
-                  <p className="mb-3 text-sm text-[#718096]">Your password:</p>
-                  <div className="flex items-center justify-center gap-4">
-                    <span className="text-3xl tracking-wider text-[#2d3748]" style={{ fontFamily: 'JetBrains Mono, monospace' }}>
+              <div className="space-y-5 animate-fade-in">
+                <div className="rounded-[8px] bg-[#F4F7F6] border border-[#E5E8E8] p-5 text-center">
+                  <p className="text-[12px] text-[#7F8C8D] mb-2">Your password</p>
+                  <div className="flex items-center justify-center gap-3">
+                    <span className="text-[24px] font-mono font-semibold text-[#2C3E50] tracking-wide">
                       {showPassword ? revealedPassword : '••••'}
                     </span>
-                    <button
-                      onClick={() => setShowPassword(!showPassword)}
-                      className="text-[#a0aec0] hover:text-[#718096] transition-colors"
-                    >
+                    <button onClick={() => setShowPassword(!showPassword)} className="text-[#95A5A6] hover:text-[#7F8C8D]">
                       {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                     </button>
                   </div>
                 </div>
-
-                <div className="flex gap-2">
-                  <Button
-                    onClick={handleCopy}
-                    variant="outline"
-                    className="flex-1 border-[#e2ddd5] text-[#718096] hover:bg-[#f5f1eb]"
-                  >
-                    {copied ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy
-                      </>
-                    )}
+                <div className="flex gap-3">
+                  <Button variant="outline" onClick={handleCopy} className="flex-1 h-10 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D]">
+                    {copied ? <><Check className="h-4 w-4 mr-2" />Copied</> : <><Copy className="h-4 w-4 mr-2" />Copy</>}
                   </Button>
                   <Link to="/dashboard" className="flex-1">
-                    <Button className="w-full bg-[#2d9d92] hover:bg-[#237a72] text-white">
-                      Done
-                    </Button>
+                    <Button className="w-full h-10 rounded-[8px] bg-[#338089] hover:bg-[#266067] text-white text-[14px] font-semibold">Done</Button>
                   </Link>
                 </div>
-
-                <p className="text-center text-sm text-[#a0aec0]">
-                  Password hidden when you leave this page
-                </p>
               </div>
             )}
           </CardContent>

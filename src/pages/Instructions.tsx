@@ -1,151 +1,123 @@
 import { Link } from 'react-router-dom'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, Smartphone, Lock, CheckCircle2, AlertCircle } from 'lucide-react'
+import { ArrowLeft, Smartphone, Shield, CheckCircle2, AlertCircle } from 'lucide-react'
 
 export default function Instructions() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 p-4">
-      <div className="mx-auto max-w-3xl pt-8">
-        <Link to="/dashboard" className="mb-6 inline-flex items-center text-slate-400 hover:text-white">
-          <ArrowLeft className="mr-2 h-4 w-4" />
-          Back to Dashboard
+    <div className="min-h-screen bg-[#F4F7F6] p-6">
+      <div className="mx-auto max-w-[700px] pt-8">
+        <Link to="/dashboard" className="inline-flex items-center gap-2 text-[14px] text-[#7F8C8D] hover:text-[#2C3E50] mb-6 transition-colors">
+          <ArrowLeft className="h-4 w-4" /> Back to Dashboard
         </Link>
 
-        <div className="mb-8">
-          <h1 className="mb-2 text-3xl font-bold text-white">How to Set up iPhone Screen Time</h1>
-          <p className="text-slate-400">
-            Use Password Locker to create a Screen Time passcode you won't remember
+        <div className="mb-8 animate-fade-up">
+          <h1 className="text-[24px] font-bold text-[#2C3E50] mb-2">iPhone Screen Time Setup</h1>
+          <p className="text-[14px] text-[#7F8C8D]">
+            Create a Screen Time passcode you won't remember
           </p>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-5">
           {/* Initial Setup */}
-          <Card className="border-slate-700 bg-slate-800/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Smartphone className="h-5 w-5 text-emerald-500" />
+          <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up delay-1">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-[16px] font-semibold text-[#2C3E50]">
+                <Smartphone className="h-5 w-5 text-[#338089]" />
                 Initial Screen Time Setup
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-slate-300">
+            <CardContent className="space-y-4 text-[14px] text-[#7F8C8D]">
               <div>
-                <h3 className="mb-2 font-semibold text-white">1. Enable Screen Time</h3>
-                <p>Go to <strong>Settings → Screen Time</strong>, and click "Turn On Screen Time" if it isn't already enabled. Select "Turn On Screen Time" and "This is My iPhone".</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">1. Enable Screen Time</h3>
+                <p>Go to <strong className="text-[#2C3E50]">Settings → Screen Time</strong>, click "Turn On Screen Time", then "This is My iPhone".</p>
               </div>
-
               <div>
-                <h3 className="mb-2 font-semibold text-white">2. Create a Dummy Passcode</h3>
-                <p>Click "Use Screen Time Passcode" and enter <strong>"1234"</strong> twice. This temporary passcode lets us access additional settings we'll need.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">2. Create Temporary Passcode</h3>
+                <p>Click "Use Screen Time Passcode" and enter <strong className="text-[#2C3E50]">"1234"</strong> twice.</p>
               </div>
-
               <div>
-                <h3 className="mb-2 font-semibold text-white">3. Skip Recovery</h3>
-                <p>On the "Screen Time Passcode Recovery" screen, click <strong>"Cancel"</strong> in the top left corner, then <strong>"Skip"</strong> on the popup. This prevents overriding the Screen Time PIN with your Apple ID.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">3. Skip Recovery</h3>
+                <p>On "Screen Time Passcode Recovery", click <strong className="text-[#2C3E50]">"Cancel"</strong> → <strong className="text-[#2C3E50]">"Skip"</strong>.</p>
               </div>
-
               <div>
-                <h3 className="mb-2 font-semibold text-white">4. Set Up App Limits</h3>
-                <p>Go to <strong>"App Limits"</strong>, turn on "App Limits", and click "Add Limit". Enter "1234" when prompted.</p>
-                <p className="mt-2">Select the apps you want to block, choose a time limit, and make sure to select <strong>"Block at End of Limit"</strong>. This is crucial—otherwise the block won't be effective.</p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 font-semibold text-white">5. Optional: Block Websites</h3>
-                <p>You can also block websites like "youtube.com" which will block both the website in Safari and the corresponding app.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">4. Set Up App Limits</h3>
+                <p>Go to "App Limits" → "Add Limit". Select apps and enable <strong className="text-[#2C3E50]">"Block at End of Limit"</strong>.</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Password Locker Integration */}
-          <Card className="border-slate-700 bg-slate-800/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <Lock className="h-5 w-5 text-emerald-500" />
+          <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up delay-2">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-[16px] font-semibold text-[#2C3E50]">
+                <Shield className="h-5 w-5 text-[#338089]" />
                 Using Password Locker
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-4 text-slate-300">
+            <CardContent className="space-y-4 text-[14px] text-[#7F8C8D]">
               <div>
-                <h3 className="mb-2 font-semibold text-white">1. Create New Password</h3>
-                <p>In Password Locker, click <strong>"Add Password"</strong> and enter a name like "iPhone Screen Time".</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">1. Create New Password</h3>
+                <p>Click <strong className="text-[#2C3E50]">"Add Password"</strong> and name it "iPhone Screen Time".</p>
+              </div>
+              <div>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">2. Follow the PIN Generator</h3>
+                <p>Password Locker generates a random PIN and guides you to enter it confusingly so you won't remember.</p>
+              </div>
+              <div>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">3. Change Screen Time Passcode</h3>
+                <p>On iPhone: <strong className="text-[#2C3E50]">Settings → Screen Time → Change Passcode</strong>. Enter "1234", then follow Password Locker's instructions.</p>
               </div>
 
-              <div>
-                <h3 className="mb-2 font-semibold text-white">2. Start PIN Generator</h3>
-                <p>Click the button to start the Screen Time PIN generator. Password Locker will generate a random 4-digit PIN and guide you through entering it into your iPhone in a way you won't remember.</p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 font-semibold text-white">3. Change Screen Time Passcode</h3>
-                <p>On your iPhone, go to <strong>Settings → Screen Time → Change Screen Time Passcode</strong>. Enter your old passcode (<strong>"1234"</strong>), then follow the instructions shown in Password Locker.</p>
-              </div>
-
-              <div className="rounded-lg bg-emerald-500/10 p-4 border border-emerald-500/20">
-                <h3 className="mb-2 flex items-center gap-2 font-semibold text-emerald-400">
-                  <AlertCircle className="h-5 w-5" />
-                  Important: Follow Instructions Exactly
+              <div className="rounded-[8px] bg-[#338089]/10 border border-[#338089]/20 p-4">
+                <h3 className="mb-2 flex items-center gap-2 font-semibold text-[#338089]">
+                  <AlertCircle className="h-4 w-4" />
+                  Important
                 </h3>
-                <ul className="ml-6 list-disc space-y-1 text-sm">
+                <ul className="ml-5 list-disc space-y-1 text-[12px]">
                   <li>Enter digits one at a time as shown</li>
                   <li>Press Delete when instructed</li>
                   <li>Don't try to remember the digits</li>
-                  <li>Complete both the initial entry and verification rounds</li>
+                  <li>Complete both entry rounds</li>
                 </ul>
               </div>
 
               <div>
-                <h3 className="mb-2 font-semibold text-white">4. Complete Verification</h3>
-                <p>Your iPhone will ask you to verify the passcode. Follow Password Locker's instructions again to enter it a second time.</p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 font-semibold text-white">5. Set Master Password</h3>
-                <p>After completing the entry, set a master password in Password Locker. This encrypts your PIN so you can retrieve it later through the typing challenge.</p>
-              </div>
-
-              <div>
-                <h3 className="mb-2 font-semibold text-white">6. Skip Recovery Again</h3>
-                <p>On your iPhone, when prompted for Screen Time Passcode Recovery, click <strong>"Cancel"</strong> and then <strong>"Skip"</strong>. You don't want to be able to override the PIN with your Apple ID.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">4. Set Master Password</h3>
+                <p>This encrypts your PIN for later retrieval via the typing challenge.</p>
               </div>
             </CardContent>
           </Card>
 
           {/* Tips */}
-          <Card className="border-slate-700 bg-slate-800/50">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-white">
-                <CheckCircle2 className="h-5 w-5 text-emerald-500" />
-                Tips & Troubleshooting
+          <Card className="border-[#E5E8E8] bg-white rounded-[12px] card-shadow animate-fade-up delay-3">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-[16px] font-semibold text-[#2C3E50]">
+                <CheckCircle2 className="h-5 w-5 text-[#338089]" />
+                Tips
               </CardTitle>
             </CardHeader>
-            <CardContent className="space-y-3 text-slate-300">
+            <CardContent className="space-y-3 text-[14px] text-[#7F8C8D]">
               <div>
-                <h3 className="mb-1 font-semibold text-white">If you can bypass the block after the 1-minute warning:</h3>
-                <p>You didn't select "Block at End of Limit" when setting up App Limits. Go back and enable this option.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">Block not working after 1-minute warning?</h3>
+                <p>Enable "Block at End of Limit" in App Limits settings.</p>
               </div>
-
               <div>
-                <h3 className="mb-1 font-semibold text-white">To retrieve your PIN later:</h3>
-                <p>Select the password in Password Locker, complete the typing challenge, enter your master password, and your PIN will be revealed.</p>
-              </div>
-
-              <div>
-                <h3 className="mb-1 font-semibold text-white">Why this works:</h3>
-                <p>The confusing entry process (fake digits, deletions, distractions) prevents you from consciously remembering the PIN. The typing challenge adds friction when retrieving, making it harder to impulsively disable your blocks.</p>
+                <h3 className="mb-1 font-semibold text-[#2C3E50]">Why this works</h3>
+                <p>The confusing entry process prevents memorization. The typing challenge adds friction when retrieving.</p>
               </div>
             </CardContent>
           </Card>
 
           {/* CTA */}
-          <div className="flex justify-center gap-4 pt-4">
+          <div className="flex justify-center gap-3 pt-4 animate-fade-up delay-4">
             <Link to="/store">
-              <Button className="bg-emerald-600 hover:bg-emerald-700">
+              <Button className="h-10 px-5 rounded-[8px] bg-[#EF7E5B] hover:bg-[#D16A4A] text-white text-[14px] font-semibold">
                 Create New Password
               </Button>
             </Link>
             <Link to="/dashboard">
-              <Button variant="outline" className="border-slate-600 text-slate-300 hover:bg-slate-700">
+              <Button variant="outline" className="h-10 px-5 rounded-[8px] border-[#E5E8E8] text-[#7F8C8D]">
                 Back to Dashboard
               </Button>
             </Link>
@@ -155,4 +127,3 @@ export default function Instructions() {
     </div>
   )
 }
-
